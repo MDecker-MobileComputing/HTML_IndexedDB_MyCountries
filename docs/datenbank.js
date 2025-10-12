@@ -132,3 +132,52 @@ async function loescheDatensatz( id ) {
         loeschRequest.onerror   = function() { reject( request.error ); };
     });
 }
+
+
+/**
+ * Daten ändern; entweder `neuJahreszahl` oder `neuLand` muss gesetzt sein.
+ * 
+ * @param {number} id ID von zu änderndem Datensatz
+ * 
+ * @param {number} neuJahreszahl Neue Jahreszahl (Optional); muss schon validiert sein
+ * 
+ * @param {string} neuLand Neues Land (Optional); muss schon validiert sein
+ * 
+ * @returns {Promise<number>} Promise, die mit der ID des aktualisierten Eintrags resolved
+ */
+async function aendereDatensatz( id, neuJahreszahl, neuLand ) {
+
+    if ( !neuJahreszahl && !neuLand ) {
+
+        reject( new Error( "Weder neues Jahr noch neues Land übergeben." ));
+    }
+
+    const datenbank = await holeDatenbankVerbindung();
+
+    return new Promise((resolve, reject) => {
+
+        const tx = datenbank.transaction( STORE_LISTENEINTRAEGE, "readwrite" );
+        const store = tx.objectStore( STORE_LISTENEINTRAEGE );
+
+        const leseRequest = store.get( id );
+
+        leseRequest.onerror = function() { reject( leseRequest.error ); }
+
+        leseRequest.onsuccess = function() {
+
+            const datensatz = leseRequest.result;
+            if ( !datensatz ) {
+
+                reject( new Error( `Datensatz mit ID=${id} nicht gefunden.` ) );
+                return;
+            }
+
+            if ( neuJahreszahl ) { datensatz.jahr = neuJahreszahl };
+            if ( neuLand       ) { datensatz.land = neuLand       };
+
+            const schreibRequest = store.put( datensatz );
+            schreibRequest.onsuccess = function() { resolve( schreibRequest.result ); }
+            schreibRequest.onerror   = function() { reject( schreibRequest.error   ); }
+        }
+    });
+}

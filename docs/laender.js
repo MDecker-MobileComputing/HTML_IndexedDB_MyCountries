@@ -1,15 +1,15 @@
 "use strict";
 
-
-let inputJahr = null;
-let inputLand = null;
-
-let divTabelle  = null;
-let tabelleBody = null;
-
+// Referenzen auf DOM-Elemente
+let inputJahr         = null;
+let inputLand         = null;
+let divTabelle        = null;
+let tabelleBody       = null;
 let spanAnzahlLaender = null;
 
 let jahrAktuell = new Date().getFullYear();
+
+const JAHR_MIN = 1900;
 
 
 /**
@@ -17,9 +17,9 @@ let jahrAktuell = new Date().getFullYear();
  */
 window.addEventListener( "load", async function () {
 
-    inputJahr         = document.getElementById( "inputJahr"   );
-    inputLand         = document.getElementById( "inputLand"   );
-    tabelleBody       = document.getElementById( "tabelleBody" );
+    inputJahr         = document.getElementById( "inputJahr"         );
+    inputLand         = document.getElementById( "inputLand"         );
+    tabelleBody       = document.getElementById( "tabelleBody"       );
     spanAnzahlLaender = document.getElementById( "spanAnzahlLaender" );
 
     if ( !inputJahr || !inputLand || !tabelleBody ) {
@@ -85,7 +85,7 @@ async function onButtonSpeichern( event ) {
         return;
     }
     let jahrZahl = Number( jahrString );
-    if ( jahrZahl < 1900 ) {
+    if ( jahrZahl < JAHR_MIN ) {
 
          alert( "Jahreszahl liegt zu weit in der Vergangenheit." );
          return;
@@ -141,9 +141,11 @@ function addTabellenZeile( id, jahr, land ) {
 
     const tabellenZeileKnoten = document.createElement( "tr" );
         
-    const zelleJahr     = document.createElement( "td" );
-    const zelleLand     = document.createElement( "td" );
-    const zelleLoeschen = document.createElement( "td" );
+    const zelleJahr        = document.createElement( "td" );
+    const zelleLand        = document.createElement( "td" );
+    const zelleLoeschen    = document.createElement( "td" );
+    const zelleJahrAendern = document.createElement( "td" );
+    const zelleLandAendern = document.createElement( "td" );
 
     zelleJahr.textContent = jahr + "";
     zelleLand.textContent = land;
@@ -152,15 +154,19 @@ function addTabellenZeile( id, jahr, land ) {
     const loeschLink = document.createElement( "a" );
     loeschLink.href        = "#";
     loeschLink.textContent = "Löschen";
-    loeschLink.addEventListener( "click", (event) => {
-       
-        onLoeschenKlick( event, id, land, jahr );
-    });
+    loeschLink.addEventListener( "click", (event) => { onLoeschenKlick( event, id, land, jahr ); });
     zelleLoeschen.appendChild( loeschLink );
+
+    const jaehrAenderLink = document.createElement( "a" );
+    jaehrAenderLink.href        = "#";
+    jaehrAenderLink.textContent = "Jahr ändern";
+    jaehrAenderLink.addEventListener( "click", (event) => { onJahrAendernKlick( event, id, land, jahr ); });
+    zelleJahrAendern.appendChild( jaehrAenderLink );
     
-    tabellenZeileKnoten.appendChild( zelleJahr );
-    tabellenZeileKnoten.appendChild( zelleLand );
-    tabellenZeileKnoten.appendChild( zelleLoeschen );
+    tabellenZeileKnoten.appendChild( zelleJahr        );
+    tabellenZeileKnoten.appendChild( zelleLand        );
+    tabellenZeileKnoten.appendChild( zelleLoeschen    );
+    tabellenZeileKnoten.appendChild( zelleJahrAendern );
 
     tabelleBody.appendChild( tabellenZeileKnoten );
 }
@@ -194,7 +200,55 @@ async function onLoeschenKlick( event, id, land, jahr ) {
 
             console.log( `Fehler beim Löschen von Datensatz mit ID=${id}.`, id );
             alert( "Fehler bei Löschen von Datensatz." );
-        }
-        
+        }        
+    }
+}
+
+
+/**
+ * Event-Handler für Ändern Jahreszahl eines Datensatzes.
+ * 
+ * @param {*} event Event-Objekt
+ * 
+ * @param {*} id ID von zu löschendem Datensatz
+ * 
+ * @param {*} land  Land, z.B. "Frankreich"
+ * 
+ * @param {*} jahr  Jahreszahl Erstbesuch (soll geändert werden)
+ */
+async function onJahrAendernKlick( event, id, land, jahr ) {
+
+    event.preventDefault();
+
+    const neueJahreszahlStr = prompt( `Bitte neue Jahreszahl für Besuch von "${land}" eingeben:`, jahr );
+    if ( !neueJahreszahlStr ) { return; }
+    
+    const neueJahreszahlNumber = Number( neueJahreszahlStr );
+    if ( !neueJahreszahlNumber ) {
+
+        alert( "Ungültige Jahreszahl eingegeben." );
+        return;
+    }
+    if ( neueJahreszahlNumber < JAHR_MIN ) {
+
+        alert( "Fehler: Eingegebene Jahreszahl liegt zu weit in der Vergangenheit." );
+        return;
+    }
+    if ( neueJahreszahlNumber > jahrAktuell ) {
+
+        alert( "Fehler: Eingegebene Jahreszahl liegt in der Zukunft." );
+        return;
+    }
+
+    try {
+
+        await aendereDatensatz( id, neueJahreszahlNumber, null );
+
+        await datenLaden();
+    }
+    catch ( fehler ) {
+
+        console.log( `Fehler beim Ändern von Datensatz mit ID=${id}.`, fehler );
+        alert( "Fehler bei Änderung von Datensatz aufgetreten." );
     }
 }
