@@ -70,18 +70,19 @@ function onButtonSpeichern( event ) {
 
     event.preventDefault();
 
-    const jahr = inputJahr.value.trim();
-    if ( !jahr ) {
+    const jahrString = inputJahr.value.trim();
+    if ( !jahrString ) {
 
         alert( "Keine Jahreszahl eingegeben." );
         return;
     }
-    if ( jahr < 1900 ) {
+    let jahrZahl = Number( jahrString );
+    if ( jahrZahl < 1900 ) {
 
          alert( "Jahreszahl liegt zu weit in der Vergangenheit." );
          return;
     }
-    if ( jahr > jahrAktuell ) {
+    if ( jahrZahl > jahrAktuell ) {
 
          alert( "Jahreszahl liegt in der Zukunft." );
          return;
@@ -96,8 +97,8 @@ function onButtonSpeichern( event ) {
 
     try {
 
-        neuerDatensatz(   jahr, neuesLand );
-        addTabellenZeile( jahr, neuesLand );
+        neuerDatensatz(   jahrZahl, neuesLand );
+        addTabellenZeile( jahrZahl, neuesLand );
     }
     catch ( fehler ) {
 

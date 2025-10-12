@@ -98,11 +98,13 @@ async function getAlleDatensaetze() {
 
         request.onsuccess = function() { 
 
-            const laenderArray = request.result;
-            laenderArray.sort( (a, b) => a.jahr > b.jahr );
+            let laenderArray = request.result;
+            laenderArray = laenderArray.sort( (a, b) => {
+                return a.jahr - b.jahr;
+            });
             resolve( laenderArray );
 
         };
-        request.onerror   = function() { reject(  request.error  ); };
+        request.onerror = function() { reject(  request.error ); };
     });
 }
