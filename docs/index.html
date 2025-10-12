@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <title>Alle meine Länder</title>
+    <meta charset="utf-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="laender-styles.css">
+</head>
+<body>
+
+  <h1>Alle meine Länder</h1>
+
+  <p>Es zählen nur Länder, in denen man mindestens einmal übernachtet hat.</p>
+  <br>
+
+  <h2>Neues Land erfassen</h2>
+  <form id="anmeldeFormular">
+
+    <div>
+      <label for="inputJahr">Jahr:</label>
+      <input id="inputJahr"
+             type="number"  
+             name="jahr" 
+             required 
+             min="1900" 
+             max="2099" 
+             inputmode="numeric" 
+             pattern="\d{4}" 
+             title="Vierstellige Jahreszahl">
+    </div><br>
+
+    <div>
+      <label for="inputLand">Land:</label>
+      <input type="text" id="inputLand" required>
+    </div><br>
+
+    <button id="buttonSpeichern"     type="submit" >Speichern</button>
+    <button id="buttonZuruecksetzen" type="reset"  >Zurücksetzen</button>
+
+  </form>
+
+
+  <hr>
+
+
+  <h2>Liste der von mir bereits besuchten Länder</h2>
+
+  <div id="divTabelle"></div>
+
+
+  <div id="meldung"></div>
+
+  <script src="datenbank.js"></script>
+  <script src="laender.js"    ></script>
+
+</body>
+</html>
