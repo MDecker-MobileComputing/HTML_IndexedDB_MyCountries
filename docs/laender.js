@@ -73,6 +73,8 @@ async function datenLaden() {
 
 /**
  * Event-Handler für den Button "Speichern".
+ * 
+ * @param {object} event Event-Objekt
  */
 async function onButtonSpeichern( event ) {
 
@@ -118,6 +120,8 @@ async function onButtonSpeichern( event ) {
 
 /**
  * Event-Handler für den Button "Zurücksetzen".
+ * 
+ * @param {object} event Event-Objekt
  */
 function onButtonZuruecksetzen( event ) {
 
@@ -151,22 +155,29 @@ function addTabellenZeile( id, jahr, land ) {
     zelleLand.textContent = land;
     
 
-    const loeschLink = document.createElement( "a" );
+    const loeschLink       = document.createElement( "a" );
     loeschLink.href        = "#";
     loeschLink.textContent = "Löschen";
     loeschLink.addEventListener( "click", (event) => { onLoeschenKlick( event, id, land, jahr ); });
     zelleLoeschen.appendChild( loeschLink );
 
-    const jaehrAenderLink = document.createElement( "a" );
+    const jaehrAenderLink       = document.createElement( "a" );
     jaehrAenderLink.href        = "#";
     jaehrAenderLink.textContent = "Jahr ändern";
     jaehrAenderLink.addEventListener( "click", (event) => { onJahrAendernKlick( event, id, land, jahr ); });
     zelleJahrAendern.appendChild( jaehrAenderLink );
+
+    const landAendernLink       = document.createElement( "a" );
+    landAendernLink.href        = "#";
+    landAendernLink.textContent = "Land ändern";
+    landAendernLink.addEventListener( "click", (event) => { onLandAendernKlick( event, id, land, jahr ); });
+    zelleLandAendern.appendChild( landAendernLink );
     
     tabellenZeileKnoten.appendChild( zelleJahr        );
     tabellenZeileKnoten.appendChild( zelleLand        );
     tabellenZeileKnoten.appendChild( zelleLoeschen    );
     tabellenZeileKnoten.appendChild( zelleJahrAendern );
+    tabellenZeileKnoten.appendChild( zelleLandAendern );
 
     tabelleBody.appendChild( tabellenZeileKnoten );
 }
@@ -175,7 +186,7 @@ function addTabellenZeile( id, jahr, land ) {
 /**
  * Event-Handler für Löschen eines Datensatzes.
  * 
- * @param {*} event Event-Objekt
+ * @param {object} event Event-Objekt
  * 
  * @param {number} ID von zu löschendem Datensatz
  * 
@@ -208,13 +219,13 @@ async function onLoeschenKlick( event, id, land, jahr ) {
 /**
  * Event-Handler für Ändern Jahreszahl eines Datensatzes.
  * 
- * @param {*} event Event-Objekt
+ * @param {object} event Event-Objekt
  * 
- * @param {*} id ID von zu löschendem Datensatz
+ * @param {number} id ID von zu löschendem Datensatz
  * 
- * @param {*} land  Land, z.B. "Frankreich"
+ * @param {string} land Land, z.B. "Frankreich"
  * 
- * @param {*} jahr  Jahreszahl Erstbesuch (soll geändert werden)
+ * @param {number} jahr Jahreszahl Erstbesuch (soll geändert werden)
  */
 async function onJahrAendernKlick( event, id, land, jahr ) {
 
@@ -248,7 +259,47 @@ async function onJahrAendernKlick( event, id, land, jahr ) {
     }
     catch ( fehler ) {
 
-        console.log( `Fehler beim Ändern von Datensatz mit ID=${id}.`, fehler );
+        console.log( `Fehler beim Ändern Jahreszahl von Datensatz mit ID=${id}.`, fehler );
+        alert( "Fehler bei Änderung von Datensatz aufgetreten." );
+    }
+}
+
+
+/**
+ * Event-Handler für Ändern Land eines Datensatzes.
+ * 
+ * @param {object} event Event-Objekt
+ * 
+ * @param {number} id ID von zu löschendem Datensatz
+ * 
+ * @param {string} land  Land, z.B. "Frankreich"
+ * 
+ * @param {number} jahr  Jahreszahl Erstbesuch (soll geändert werden)
+ */
+async function onLandAendernKlick( event, id, land, jahr ) {
+
+    event.preventDefault();
+
+    let neuesLand = prompt( `Bitte neues Land für Jahr ${jahr} eingeben: `, land );
+    if ( !neuesLand ) { return; }
+
+    neuesLand = neuesLand.trim();
+
+    if ( neuesLand.length === 0 ) {
+
+        alert( "Fehler: Kein Land eingegeben." );
+        return;
+    }
+
+    try {
+
+        await aendereDatensatz( id, null, neuesLand );
+
+        await datenLaden();
+    }
+    catch ( fehler ) {
+
+        console.log( `Fehler beim Ändern Land von Datensatz mit ID=${id}.`, fehler );
         alert( "Fehler bei Änderung von Datensatz aufgetreten." );
     }
 }
