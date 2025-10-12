@@ -10,7 +10,10 @@
 
   <h1>Alle meine Länder</h1>
 
-  <p>Es zählen nur Länder, in denen man mindestens einmal übernachtet hat.</p>
+  <p>
+    Es zählen nur Länder, in denen man mindestens einmal übernachtet hat.
+    Bei mehreren Besuchen ist das Jahr des ersten Besuchs zu nennen.
+  </p>
   <br>
 
   <h2>Neues Land erfassen</h2>
@@ -40,12 +43,22 @@
   </form>
 
 
-  <hr>
+  <hr><!-- ----------------------------------------------- -->
 
 
   <h2>Liste der von mir bereits besuchten Länder</h2>
 
-  <div id="divTabelle"></div>
+  <table>
+    <thead>
+      <tr>
+        <th>Jahr</th>
+        <th>Land</th>
+      </tr>
+    </thead>
+    <tbody id="tabelleBody">
+    </tbody>
+  </table>
+  <br>
 
 
   <div id="meldung"></div>
