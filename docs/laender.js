@@ -32,7 +32,35 @@ window.addEventListener( "load", async function () {
 
     buttonSpeichern.addEventListener(     "click", onButtonSpeichern     );
     buttonZuruecksetzen.addEventListener( "click", onButtonZuruecksetzen );
+
+    await datenLaden();
 });
+
+
+/**
+ * Daten von Datenbank laden und in Tabelle darstellen.
+ */
+async function datenLaden() {
+
+    tabelleBody.innerHTML = ""; // Tabula Rasa
+
+    try {
+
+        const laenderArray = await getAlleDatensaetze();
+
+        for ( let i = 0; i < laenderArray.length; i++ ) {
+
+            const jahr = laenderArray[i].jahr;
+            const land = laenderArray[i].land;
+            addTabellenZeile( jahr, land );
+        }
+    }
+    catch ( fehler ) {
+    
+        console.error( "Fehler beim Laden vom Datenbank:", fehler );
+        alert( "Fehler beim Laden vom Datenbank." );        
+    }
+}
 
 
 /**
@@ -66,18 +94,15 @@ function onButtonSpeichern( event ) {
         return;
     }
 
-
     try {
 
-        neuerDatensatz( jahr, neuesLand );
-
+        neuerDatensatz(   jahr, neuesLand );
         addTabellenZeile( jahr, neuesLand );
     }
     catch ( fehler ) {
 
         console.error( "Fehler beim Speichern von Datensatz:", fehler );
         alert( "Fehler beim Speichern von Datensatz." );
-        return;
     }    
 }
 
@@ -88,7 +113,6 @@ function onButtonSpeichern( event ) {
 function onButtonZuruecksetzen( event ) {
 
     if ( event ) { event.preventDefault(); }
-
     
     inputJahr.value = jahrAktuell;
     inputLand.value = "";

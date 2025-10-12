@@ -77,3 +77,32 @@ async function neuerDatensatz( jahr, land ) {
         request.onerror   = () => reject(  request.error  );
     });    
 }
+
+
+/**
+ * Alle gespeicherten Datensätze (Länder+Jahr) von Datenbank holen.
+ * 
+ * @returns {Promise<Array>} Promise mit Array aller Länderobjekt
+ *                           aufsteigend nach Jahr sortiert
+ */
+async function getAlleDatensaetze() {
+
+    const datenbank = await holeDatenbankVerbindung();
+
+    return new Promise( ( resolve, reject ) => {
+
+        const tx      = datenbank.transaction( STORE_LISTENEINTRAEGE, "readonly" );
+        const store   = tx.objectStore( STORE_LISTENEINTRAEGE );
+
+        const request = store.getAll();
+
+        request.onsuccess = function() { 
+
+            const laenderArray = request.result;
+            laenderArray.sort( (a, b) => a.jahr > b.jahr );
+            resolve( laenderArray );
+
+        };
+        request.onerror   = function() { reject(  request.error  ); };
+    });
+}
