@@ -9,6 +9,12 @@ verwendet (die Daten werden also nur in einer Browser-Instanz/Installation gespe
 
 <br>
 
+Die Web-App wird von *GH Pages* unter der folgenden URL bereitgestellt:
+
+https://mdecker-mobilecomputing.github.io/HTML_IndexedDB_AlleMeineLaender/
+
+<br>
+
 ----
 
 ## License ##

@@ -7,6 +7,8 @@ let inputLand = null;
 let divTabelle  = null;
 let tabelleBody = null;
 
+let spanAnzahlLaender = null;
+
 let jahrAktuell = new Date().getFullYear();
 
 
@@ -15,9 +17,10 @@ let jahrAktuell = new Date().getFullYear();
  */
 window.addEventListener( "load", async function () {
 
-    inputJahr   = document.getElementById( "inputJahr"   );
-    inputLand   = document.getElementById( "inputLand"   );
-    tabelleBody = document.getElementById( "tabelleBody" );
+    inputJahr         = document.getElementById( "inputJahr"   );
+    inputLand         = document.getElementById( "inputLand"   );
+    tabelleBody       = document.getElementById( "tabelleBody" );
+    spanAnzahlLaender = document.getElementById( "spanAnzahlLaender" );
 
     if ( !inputJahr || !inputLand || !tabelleBody ) {
 
@@ -42,7 +45,9 @@ window.addEventListener( "load", async function () {
  */
 async function datenLaden() {
 
-    tabelleBody.innerHTML = ""; // Tabula Rasa
+    // Tabula Rasa
+    tabelleBody.innerHTML         = ""; 
+    spanAnzahlLaender.textContent = "0";
 
     try {
 
@@ -55,6 +60,8 @@ async function datenLaden() {
             const land = laenderArray[i].land;            
             addTabellenZeile( id, jahr, land );
         }
+
+        spanAnzahlLaender.textContent = laenderArray.length + "";
     }
     catch ( fehler ) {
     
@@ -98,8 +105,8 @@ async function onButtonSpeichern( event ) {
 
     try {
 
-        const idNeu = await neuerDatensatz(   jahrZahl, neuesLand );
-        addTabellenZeile( idNeu, jahrZahl, neuesLand );
+        await neuerDatensatz( jahrZahl, neuesLand );
+        datenLaden();
     }
     catch ( fehler ) {
 

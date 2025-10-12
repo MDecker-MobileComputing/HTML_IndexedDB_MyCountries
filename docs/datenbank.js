@@ -73,8 +73,8 @@ async function neuerDatensatz( jahr, land ) {
 
         const neuRequest = store.add( landObjekt );
 
-        request.onsuccess = () => resolve( neuRequest.result );
-        request.onerror   = () => reject(  neuRequest.error  );
+        neuRequest.onsuccess = () => resolve( neuRequest.result );
+        neuRequest.onerror   = () => reject(  neuRequest.error  );
     });    
 }
 
