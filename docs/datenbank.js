@@ -154,7 +154,7 @@ async function aendereDatensatz( id, neuJahreszahl, neuLand ) {
 
     const datenbank = await holeDatenbankVerbindung();
 
-    return new Promise((resolve, reject) => {
+    return new Promise( (resolve, reject) => {
 
         const tx = datenbank.transaction( STORE_LISTENEINTRAEGE, "readwrite" );
         const store = tx.objectStore( STORE_LISTENEINTRAEGE );
