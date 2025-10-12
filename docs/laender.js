@@ -50,9 +50,10 @@ async function datenLaden() {
 
         for ( let i = 0; i < laenderArray.length; i++ ) {
 
+            const id   = laenderArray[i].id;
             const jahr = laenderArray[i].jahr;
-            const land = laenderArray[i].land;
-            addTabellenZeile( jahr, land );
+            const land = laenderArray[i].land;            
+            addTabellenZeile( id, jahr, land );
         }
     }
     catch ( fehler ) {
@@ -66,7 +67,7 @@ async function datenLaden() {
 /**
  * Event-Handler für den Button "Speichern".
  */
-function onButtonSpeichern( event ) {
+async function onButtonSpeichern( event ) {
 
     event.preventDefault();
 
@@ -97,8 +98,8 @@ function onButtonSpeichern( event ) {
 
     try {
 
-        neuerDatensatz(   jahrZahl, neuesLand );
-        addTabellenZeile( jahrZahl, neuesLand );
+        const idNeu = await neuerDatensatz(   jahrZahl, neuesLand );
+        addTabellenZeile( idNeu, jahrZahl, neuesLand );
     }
     catch ( fehler ) {
 
@@ -123,21 +124,70 @@ function onButtonZuruecksetzen( event ) {
 /**
  * Zeile in Tabelle einfügen.
  * 
+ * @param {number} id ID von Datensatz
+ * 
  * @param {number} jahr Jahreszahl Erstbesuch (muss schon validiert sein)
  * 
  * @param {string} land Land, z.B. "Frankreich" (muss schon validiert sein)
  */
-function addTabellenZeile( jahr, land ) {
+function addTabellenZeile( id, jahr, land ) {
 
     const tabellenZeileKnoten = document.createElement( "tr" );
         
-    const zelleJahr = document.createElement( "td" );
-    const zelleLand = document.createElement( "td" );
+    const zelleJahr     = document.createElement( "td" );
+    const zelleLand     = document.createElement( "td" );
+    const zelleLoeschen = document.createElement( "td" );
 
     zelleJahr.textContent = jahr + "";
     zelleLand.textContent = land;
+    
 
+    const loeschLink = document.createElement( "a" );
+    loeschLink.href        = "#";
+    loeschLink.textContent = "Löschen";
+    loeschLink.addEventListener( "click", (event) => {
+       
+        onLoeschenKlick( event, id, land, jahr );
+    });
+    zelleLoeschen.appendChild( loeschLink );
+    
     tabellenZeileKnoten.appendChild( zelleJahr );
     tabellenZeileKnoten.appendChild( zelleLand );
+    tabellenZeileKnoten.appendChild( zelleLoeschen );
+
     tabelleBody.appendChild( tabellenZeileKnoten );
+}
+
+
+/**
+ * Event-Handler für Löschen eines Datensatzes.
+ * 
+ * @param {*} event Event-Objekt
+ * 
+ * @param {number} ID von zu löschendem Datensatz
+ * 
+ * @param {string} land Land, z.B. "Frankreich"
+ * 
+ * @param {number} jahr Jahreszahl Erstbesuch   
+ */
+async function onLoeschenKlick( event, id, land, jahr ) {
+
+    event.preventDefault();
+
+    const bestaetigt = confirm( `Soll der Eintrag für "${land}" im Jahr ${jahr} wirklich gelöscht werden?` );
+    if ( bestaetigt === true ) {
+
+        try {
+
+            await loescheDatensatz( id );
+            
+            await datenLaden();
+        }
+        catch ( fehler ) {
+
+            console.log( `Fehler beim Löschen von Datensatz mit ID=${id}.`, id );
+            alert( "Fehler bei Löschen von Datensatz." );
+        }
+        
+    }
 }

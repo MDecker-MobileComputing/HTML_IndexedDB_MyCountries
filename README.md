@@ -6,8 +6,6 @@ Dieses Repo enthält den Quellcode der Web-App "Alle meine Länder", mit der man
 eine Liste aller Ländern, die man schon besucht hat, verwalten kann. 
 Zum Speichern der Daten wird [IndexedDB](https://www.ionos.de/digitalguide/websites/web-entwicklung/indexeddb/)
 verwendet (die Daten werden also nur in einer Browser-Instanz/Installation gespeichert).
-/HTML_IndexedDB_BucketList/
-
 
 <br>
 

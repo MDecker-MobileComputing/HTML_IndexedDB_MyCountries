@@ -71,10 +71,10 @@ async function neuerDatensatz( jahr, land ) {
                              land: land
                            };
 
-        const request = store.add( landObjekt );
+        const neuRequest = store.add( landObjekt );
 
-        request.onsuccess = () => resolve( request.result );
-        request.onerror   = () => reject(  request.error  );
+        request.onsuccess = () => resolve( neuRequest.result );
+        request.onerror   = () => reject(  neuRequest.error  );
     });    
 }
 
@@ -94,17 +94,41 @@ async function getAlleDatensaetze() {
         const tx      = datenbank.transaction( STORE_LISTENEINTRAEGE, "readonly" );
         const store   = tx.objectStore( STORE_LISTENEINTRAEGE );
 
-        const request = store.getAll();
+        const leseRequest = store.getAll();
 
-        request.onsuccess = function() { 
+        leseRequest.onsuccess = function() { 
 
-            let laenderArray = request.result;
+            let laenderArray = leseRequest.result;
             laenderArray = laenderArray.sort( (a, b) => {
                 return a.jahr - b.jahr;
             });
             resolve( laenderArray );
 
         };
-        request.onerror = function() { reject(  request.error ); };
+        leseRequest.onerror = function() { reject(  request.error ); };
+    });
+}
+
+
+/**
+ * Löscht einen Datensatz in Datenbank.
+ * 
+ * @param {number} id  ID von Datensatz, der zu Löschen ist
+ * 
+ * @returns {Promise<void>} Promise, die resolved wenn der Löschvorgang erfolgreich war
+ */
+async function loescheDatensatz( id ) {
+
+    const datenbank = await holeDatenbankVerbindung();    
+
+    return new Promise( (resolve, reject) => {
+
+        const tx    = datenbank.transaction( STORE_LISTENEINTRAEGE, "readwrite" );
+        const store = tx.objectStore( STORE_LISTENEINTRAEGE );        
+
+        const loeschRequest = store.delete( id );
+
+        loeschRequest.onsuccess = function() { resolve();               }; 
+        loeschRequest.onerror   = function() { reject( request.error ); };
     });
 }
