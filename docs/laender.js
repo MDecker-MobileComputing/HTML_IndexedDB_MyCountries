@@ -67,7 +67,18 @@ function onButtonSpeichern( event ) {
     }
 
 
-    addTabellenZeile( jahr, neuesLand );
+    try {
+
+        neuerDatensatz( jahr, neuesLand );
+
+        addTabellenZeile( jahr, neuesLand );
+    }
+    catch ( fehler ) {
+
+        console.error( "Fehler beim Speichern von Datensatz:", fehler );
+        alert( "Fehler beim Speichern von Datensatz." );
+        return;
+    }    
 }
 
 
