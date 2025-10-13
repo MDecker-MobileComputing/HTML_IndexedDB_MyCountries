@@ -24,9 +24,9 @@ function holeDatenbankVerbindung() {
 
         idbOpenRequest.onerror = (event) => {
 
-            const fehlerObjekt = event.target.error;
-            console.error( `Fehler beim Öffnen der Datenbank \"${DATENBANK_NAME}\":`, fehlerObjekt );
-            return reject( fehlerObjekt );
+            const fehler = event.target.error;
+            console.error( `Fehler beim Öffnen der Datenbank \"${DATENBANK_NAME}\":`, fehler );
+            return reject( fehler );
         };
 
         idbOpenRequest.onupgradeneeded = (event) => {
@@ -50,11 +50,11 @@ function holeDatenbankVerbindung() {
 
 /**
  * Neues Land+Jahr in Datenbank speichern.
- * 
+ *
  * @param {number} jahr Jahreszahl (vierstellig, muss validiert sein)
- * 
+ *
  * @param {string} land Land (muss validiert sein)
- * 
+ *
  * @returns {Promise<number>} Promise mit ID der neu erstellten Lehrveranstaltung
  */
 async function neuerDatensatz( jahr, land ) {
@@ -63,11 +63,11 @@ async function neuerDatensatz( jahr, land ) {
 
     return new Promise( ( resolve, reject ) => {
 
-        const tx      = datenbank.transaction( STORE_LISTENEINTRAEGE, "readwrite" );
-        const store   = tx.objectStore( STORE_LISTENEINTRAEGE );
+        const tx    = datenbank.transaction( STORE_LISTENEINTRAEGE, "readwrite" );
+        const store = tx.objectStore( STORE_LISTENEINTRAEGE );
 
-        const landObjekt = { 
-                             jahr: jahr, 
+        const landObjekt = {
+                             jahr: jahr,
                              land: land
                            };
 
@@ -75,13 +75,13 @@ async function neuerDatensatz( jahr, land ) {
 
         neuRequest.onsuccess = () => resolve( neuRequest.result );
         neuRequest.onerror   = () => reject(  neuRequest.error  );
-    });    
+    });
 }
 
 
 /**
  * Alle gespeicherten Datensätze (Länder+Jahr) von Datenbank holen.
- * 
+ *
  * @returns {Promise<Array>} Promise mit Array aller Länderobjekt
  *                           aufsteigend nach Jahr sortiert
  */
@@ -91,12 +91,12 @@ async function getAlleDatensaetze() {
 
     return new Promise( ( resolve, reject ) => {
 
-        const tx      = datenbank.transaction( STORE_LISTENEINTRAEGE, "readonly" );
-        const store   = tx.objectStore( STORE_LISTENEINTRAEGE );
+        const tx    = datenbank.transaction( STORE_LISTENEINTRAEGE, "readonly" );
+        const store = tx.objectStore( STORE_LISTENEINTRAEGE );
 
         const leseRequest = store.getAll();
 
-        leseRequest.onsuccess = function() { 
+        leseRequest.onsuccess = function() {
 
             let laenderArray = leseRequest.result;
             laenderArray = laenderArray.sort( (a, b) => {
@@ -112,23 +112,23 @@ async function getAlleDatensaetze() {
 
 /**
  * Löscht einen Datensatz in Datenbank.
- * 
+ *
  * @param {number} id  ID von Datensatz, der zu Löschen ist
- * 
+ *
  * @returns {Promise<void>} Promise, die resolved wenn der Löschvorgang erfolgreich war
  */
 async function loescheDatensatz( id ) {
 
-    const datenbank = await holeDatenbankVerbindung();    
+    const datenbank = await holeDatenbankVerbindung();
 
     return new Promise( (resolve, reject) => {
 
         const tx    = datenbank.transaction( STORE_LISTENEINTRAEGE, "readwrite" );
-        const store = tx.objectStore( STORE_LISTENEINTRAEGE );        
+        const store = tx.objectStore( STORE_LISTENEINTRAEGE );
 
         const loeschRequest = store.delete( id );
 
-        loeschRequest.onsuccess = function() { resolve();               }; 
+        loeschRequest.onsuccess = function() { resolve();               };
         loeschRequest.onerror   = function() { reject( request.error ); };
     });
 }
@@ -136,13 +136,13 @@ async function loescheDatensatz( id ) {
 
 /**
  * Daten ändern; entweder `neuJahreszahl` oder `neuLand` muss gesetzt sein.
- * 
+ *
  * @param {number} id ID von zu änderndem Datensatz
- * 
+ *
  * @param {number} neuJahreszahl Neue Jahreszahl (Optional); muss schon validiert sein
- * 
+ *
  * @param {string} neuLand Neues Land (Optional); muss schon validiert sein
- * 
+ *
  * @returns {Promise<number>} Promise, die mit der ID des aktualisierten Eintrags resolved
  */
 async function aendereDatensatz( id, neuJahreszahl, neuLand ) {
@@ -156,7 +156,7 @@ async function aendereDatensatz( id, neuJahreszahl, neuLand ) {
 
     return new Promise( (resolve, reject) => {
 
-        const tx = datenbank.transaction( STORE_LISTENEINTRAEGE, "readwrite" );
+        const tx    = datenbank.transaction( STORE_LISTENEINTRAEGE, "readwrite" );
         const store = tx.objectStore( STORE_LISTENEINTRAEGE );
 
         const leseRequest = store.get( id );

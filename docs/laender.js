@@ -27,7 +27,7 @@ window.addEventListener( "load", async function () {
         this.alert( "Interner Fehler: Mindestens eines der HTML-Elemente wurde nicht gefunden." );
         return;
     }
-    
+
     onButtonZuruecksetzen();
 
     const buttonSpeichern     = this.document.getElementById( "buttonSpeichern"     );
@@ -46,7 +46,7 @@ window.addEventListener( "load", async function () {
 async function datenLaden() {
 
     // Tabula Rasa
-    tabelleBody.innerHTML         = ""; 
+    tabelleBody.innerHTML         = "";
     spanAnzahlLaender.textContent = "0";
 
     try {
@@ -57,23 +57,23 @@ async function datenLaden() {
 
             const id   = laenderArray[i].id;
             const jahr = laenderArray[i].jahr;
-            const land = laenderArray[i].land;            
+            const land = laenderArray[i].land;
             addTabellenZeile( id, jahr, land );
         }
 
         spanAnzahlLaender.textContent = laenderArray.length + "";
     }
     catch ( fehler ) {
-    
+
         console.error( "Fehler beim Laden vom Datenbank:", fehler );
-        alert( "Fehler beim Laden vom Datenbank." );        
+        alert( "Fehler beim Laden vom Datenbank." );
     }
 }
 
 
 /**
  * Event-Handler für den Button "Speichern".
- * 
+ *
  * @param {object} event Event-Objekt
  */
 async function onButtonSpeichern( event ) {
@@ -114,19 +114,19 @@ async function onButtonSpeichern( event ) {
 
         console.error( "Fehler beim Speichern von Datensatz:", fehler );
         alert( "Fehler beim Speichern von Datensatz." );
-    }    
+    }
 }
 
 
 /**
  * Event-Handler für den Button "Zurücksetzen".
- * 
+ *
  * @param {object} event Event-Objekt
  */
 function onButtonZuruecksetzen( event ) {
 
     if ( event ) { event.preventDefault(); }
-    
+
     inputJahr.value = jahrAktuell;
     inputLand.value = "";
 }
@@ -134,17 +134,17 @@ function onButtonZuruecksetzen( event ) {
 
 /**
  * Zeile in Tabelle einfügen.
- * 
+ *
  * @param {number} id ID von Datensatz
- * 
+ *
  * @param {number} jahr Jahreszahl Erstbesuch (muss schon validiert sein)
- * 
+ *
  * @param {string} land Land, z.B. "Frankreich" (muss schon validiert sein)
  */
 function addTabellenZeile( id, jahr, land ) {
 
     const tabellenZeileKnoten = document.createElement( "tr" );
-        
+
     const zelleJahr        = document.createElement( "td" );
     const zelleLand        = document.createElement( "td" );
     const zelleLoeschen    = document.createElement( "td" );
@@ -153,7 +153,6 @@ function addTabellenZeile( id, jahr, land ) {
 
     zelleJahr.textContent = jahr + "";
     zelleLand.textContent = land;
-    
 
     const loeschLink       = document.createElement( "a" );
     loeschLink.href        = "#";
@@ -172,7 +171,7 @@ function addTabellenZeile( id, jahr, land ) {
     landAendernLink.textContent = "Land ändern";
     landAendernLink.addEventListener( "click", (event) => { onLandAendernKlick( event, id, land, jahr ); });
     zelleLandAendern.appendChild( landAendernLink );
-    
+
     tabellenZeileKnoten.appendChild( zelleJahr        );
     tabellenZeileKnoten.appendChild( zelleLand        );
     tabellenZeileKnoten.appendChild( zelleLoeschen    );
@@ -185,14 +184,14 @@ function addTabellenZeile( id, jahr, land ) {
 
 /**
  * Event-Handler für Löschen eines Datensatzes.
- * 
+ *
  * @param {object} event Event-Objekt
- * 
+ *
  * @param {number} ID von zu löschendem Datensatz
- * 
+ *
  * @param {string} land Land, z.B. "Frankreich"
- * 
- * @param {number} jahr Jahreszahl Erstbesuch   
+ *
+ * @param {number} jahr Jahreszahl Erstbesuch, z.B. 1986
  */
 async function onLoeschenKlick( event, id, land, jahr ) {
 
@@ -204,36 +203,39 @@ async function onLoeschenKlick( event, id, land, jahr ) {
         try {
 
             await loescheDatensatz( id );
-            
+
             await datenLaden();
         }
         catch ( fehler ) {
 
             console.log( `Fehler beim Löschen von Datensatz mit ID=${id}.`, id );
             alert( "Fehler bei Löschen von Datensatz." );
-        }        
+        }
     }
 }
 
 
 /**
  * Event-Handler für Ändern Jahreszahl eines Datensatzes.
- * 
+ *
  * @param {object} event Event-Objekt
- * 
+ *
  * @param {number} id ID von zu löschendem Datensatz
- * 
+ *
  * @param {string} land Land, z.B. "Frankreich"
- * 
+ *
  * @param {number} jahr Jahreszahl Erstbesuch (soll geändert werden)
  */
 async function onJahrAendernKlick( event, id, land, jahr ) {
 
     event.preventDefault();
 
-    const neueJahreszahlStr = prompt( `Bitte neue Jahreszahl für Besuch von "${land}" eingeben:`, jahr );
+    const neueJahreszahlStr =
+            prompt( `Bitte neue Jahreszahl für Besuch von "${land}" eingeben:`,
+                    jahr );
+
     if ( !neueJahreszahlStr ) { return; }
-    
+
     const neueJahreszahlNumber = Number( neueJahreszahlStr );
     if ( !neueJahreszahlNumber ) {
 
@@ -267,13 +269,13 @@ async function onJahrAendernKlick( event, id, land, jahr ) {
 
 /**
  * Event-Handler für Ändern Land eines Datensatzes.
- * 
+ *
  * @param {object} event Event-Objekt
- * 
+ *
  * @param {number} id ID von zu löschendem Datensatz
- * 
+ *
  * @param {string} land  Land, z.B. "Frankreich"
- * 
+ *
  * @param {number} jahr  Jahreszahl Erstbesuch (soll geändert werden)
  */
 async function onLandAendernKlick( event, id, land, jahr ) {
