@@ -19,7 +19,7 @@ function holeDatenbankVerbindung() {
 
             const db = event.target.result;
             console.log( `Datenbank \"${DATENBANK_NAME}\" erfolgreich geöffnet.` );
-            return resolve(db);
+            return resolve( db );
         };
 
         idbOpenRequest.onerror = (event) => {
