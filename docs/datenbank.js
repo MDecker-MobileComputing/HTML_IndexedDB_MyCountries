@@ -9,11 +9,11 @@ const STORE_LISTENEINTRAEGE = "laender";
  *
  * @returns {Promise<IDBDatabase>} Promise auf Verbindungsobjekt der Datenbank
  */
-function holeDatenbankVerbindung() {
+async function holeDatenbankVerbindung() {
 
     return new Promise( (resolve, reject) => {
 
-        const idbOpenRequest = window.indexedDB.open( DATENBANK_NAME, 1 ); // Schema-Version
+        const idbOpenRequest = window.indexedDB.open( DATENBANK_NAME, 1 );
 
         idbOpenRequest.onsuccess = (event) => {
 
