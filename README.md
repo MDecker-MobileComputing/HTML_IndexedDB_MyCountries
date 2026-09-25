@@ -1,17 +1,16 @@
-# Web-App "Alle meine Länder" mit IndexedDB #
+# Web-App "My Countries" using IndexedDB #
 
 <br>
 
-Dieses Repo enthält den Quellcode der Web-App "Alle meine Länder", mit der man im lokalen Browser
-eine Liste aller Ländern, die man schon besucht hat, verwalten kann. 
-Zum Speichern der Daten wird [IndexedDB](https://www.ionos.de/digitalguide/websites/web-entwicklung/indexeddb/)
-verwendet (die Daten werden also nur in einer Browser-Instanz/Installation gespeichert).
+This repository contains the source code for the web app "All My Countries", which allows you to manage a list of all the countries you have visited in your local browser.
+
+The data is stored using [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) (meaning that the data is only stored within a single browser instance/installation).
 
 <br>
 
 Die Web-App wird von *GH Pages* unter der folgenden URL bereitgestellt:
 
-https://mdecker-mobilecomputing.github.io/HTML_IndexedDB_AlleMeineLaender/
+https://mdecker-mobilecomputing.github.io/HTML_IndexedDB_MyCountries/
 
 <br>
 
