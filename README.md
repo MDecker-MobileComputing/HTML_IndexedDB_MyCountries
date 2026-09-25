@@ -8,7 +8,7 @@ The data is stored using [IndexedDB](https://developer.mozilla.org/en-US/docs/We
 
 <br>
 
-Die Web-App wird von *GH Pages* unter der folgenden URL bereitgestellt:
+The web app is hosted by *GH Pages* at the following URL:
 
 https://mdecker-mobilecomputing.github.io/HTML_IndexedDB_MyCountries/
 
