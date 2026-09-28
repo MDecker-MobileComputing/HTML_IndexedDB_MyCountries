@@ -1,15 +1,15 @@
 "use strict";
 
 // References to DOM elements
-let inputJahr         = null;
-let inputLand         = null;
-let divTabelle        = null;
-let tabelleBody       = null;
-let spanAnzahlLaender = null;
+let yearInput   = null;
+let countryInput = null;
+let tableDiv    = null;
+let tableBody   = null;
+let countryCount = null;
 
-let jahrAktuell = new Date().getFullYear();
+let currentYear = new Date().getFullYear();
 
-const JAHR_MIN = 1900;
+const MIN_YEAR = 1900;
 
 
 /**
@@ -17,55 +17,55 @@ const JAHR_MIN = 1900;
  */
 window.addEventListener( "load", async function () {
 
-    inputJahr         = document.getElementById( "inputJahr"         );
-    inputLand         = document.getElementById( "inputLand"         );
-    tabelleBody       = document.getElementById( "tabelleBody"       );
-    spanAnzahlLaender = document.getElementById( "spanAnzahlLaender" );
+    yearInput    = document.getElementById( "yearInput"    );
+    countryInput = document.getElementById( "countryInput" );
+    tableBody    = document.getElementById( "tableBody"    );
+    countryCount = document.getElementById( "countryCount" );
 
-    if ( !inputJahr || !inputLand || !tabelleBody ) {
+    if ( !yearInput || !countryInput || !tableBody ) {
 
         this.alert( "Internal error: At least one HTML element could not be found." );
         return;
     }
 
-    onButtonZuruecksetzen();
+    resetForm();
 
-    const buttonSpeichern     = this.document.getElementById( "buttonSpeichern"     );
-    const buttonZuruecksetzen = this.document.getElementById( "buttonZuruecksetzen" );
+    const saveButton  = this.document.getElementById( "saveButton"  );
+    const resetButton = this.document.getElementById( "resetButton" );
 
-    buttonSpeichern.addEventListener(     "click", onButtonSpeichern     );
-    buttonZuruecksetzen.addEventListener( "click", onButtonZuruecksetzen );
+    saveButton.addEventListener(  "click", saveCountry );
+    resetButton.addEventListener( "click", resetForm );
 
-    await datenLaden();
+    await loadData();
 });
 
 
 /**
  * Load data from the database and display it in the table.
  */
-async function datenLaden() {
+async function loadData() {
 
     // Clear the table
-    tabelleBody.innerHTML         = "";
-    spanAnzahlLaender.textContent = "0";
+    tableBody.innerHTML    = "";
+    countryCount.textContent = "0";
 
     try {
 
-        const laenderArray = await getAlleDatensaetze();
+        const countries = await getAllRecords();
 
-        for ( let i = 0; i < laenderArray.length; i++ ) {
+        for ( let i = 0; i < countries.length; i++ ) {
 
-            const id   = laenderArray[i].id;
-            const jahr = laenderArray[i].jahr;
-            const land = laenderArray[i].land;
-            addTabellenZeile( id, jahr, land );
+            const id      = countries[i].id;
+            const year    = countries[i].year;
+            const country = countries[i].country;
+            addTableRow( id, year, country );
         }
 
-        spanAnzahlLaender.textContent = laenderArray.length + "";
+        countryCount.textContent = countries.length + "";
     }
-    catch ( fehler ) {
+    catch ( error ) {
 
-        console.error( "Error loading the database:", fehler );
+        console.error( "Error loading the database:", error );
         alert( "Error loading the database." );
     }
 }
@@ -76,30 +76,30 @@ async function datenLaden() {
  *
  * @param {object} event Event object
  */
-async function onButtonSpeichern( event ) {
+async function saveCountry( event ) {
 
     event.preventDefault();
 
-    const jahrString = inputJahr.value.trim();
-    if ( !jahrString ) {
+    const yearString = yearInput.value.trim();
+    if ( !yearString ) {
 
         alert( "No year entered." );
         return;
     }
-    let jahrZahl = Number( jahrString );
-    if ( jahrZahl < JAHR_MIN ) {
+    const year = Number( yearString );
+    if ( year < MIN_YEAR ) {
 
          alert( "The year is too far in the past." );
          return;
     }
-    if ( jahrZahl > jahrAktuell ) {
+    if ( year > currentYear ) {
 
          alert( "The year is in the future." );
          return;
     }
 
-    const neuesLand = inputLand.value.trim();
-    if ( neuesLand.length === 0 ) {
+    const country = countryInput.value.trim();
+    if ( country.length === 0 ) {
 
         alert( "Invalid entry: Country cannot be empty." );
         return;
@@ -107,12 +107,12 @@ async function onButtonSpeichern( event ) {
 
     try {
 
-        await neuerDatensatz( jahrZahl, neuesLand );
-        datenLaden();
+        await addRecord( year, country );
+        loadData();
     }
-    catch ( fehler ) {
+    catch ( error ) {
 
-        console.error( "Error saving record:", fehler );
+        console.error( "Error saving record:", error );
         alert( "Error saving the record." );
     }
 }
@@ -123,12 +123,12 @@ async function onButtonSpeichern( event ) {
  *
  * @param {object} event Event object
  */
-function onButtonZuruecksetzen( event ) {
+function resetForm( event ) {
 
     if ( event ) { event.preventDefault(); }
 
-    inputJahr.value = jahrAktuell;
-    inputLand.value = "";
+    yearInput.value = currentYear;
+    countryInput.value = "";
 }
 
 
@@ -137,48 +137,48 @@ function onButtonZuruecksetzen( event ) {
  *
  * @param {number} id Record ID
  *
- * @param {number} jahr Year of the first visit (must already be validated)
+ * @param {number} year Year of the first visit (must already be validated)
  *
- * @param {string} land Country, e.g. "France" (must already be validated)
+ * @param {string} country Country, e.g. "France" (must already be validated)
  */
-function addTabellenZeile( id, jahr, land ) {
+function addTableRow( id, year, country ) {
 
-    const tabellenZeileKnoten = document.createElement( "tr" );
+    const tableRow = document.createElement( "tr" );
 
-    const zelleJahr        = document.createElement( "td" );
-    const zelleLand        = document.createElement( "td" );
-    const zelleLoeschen    = document.createElement( "td" );
-    const zelleJahrAendern = document.createElement( "td" );
-    const zelleLandAendern = document.createElement( "td" );
+    const yearCell       = document.createElement( "td" );
+    const countryCell    = document.createElement( "td" );
+    const deleteCell     = document.createElement( "td" );
+    const editYearCell   = document.createElement( "td" );
+    const editCountryCell = document.createElement( "td" );
 
-    zelleJahr.textContent = jahr + "";
-    zelleLand.textContent = land;
+    yearCell.textContent = year + "";
+    countryCell.textContent = country;
 
-    const loeschLink       = document.createElement( "a" );
-    loeschLink.href        = "#";
-    loeschLink.textContent = "Delete";
-    loeschLink.addEventListener( "click", (event) => { onLoeschenKlick( event, id, land, jahr ); });
-    zelleLoeschen.appendChild( loeschLink );
+    const deleteLink = document.createElement( "a" );
+    deleteLink.href = "#";
+    deleteLink.textContent = "Delete";
+    deleteLink.addEventListener( "click", (event) => { onDeleteClick( event, id, country, year ); });
+    deleteCell.appendChild( deleteLink );
 
-    const jaehrAenderLink       = document.createElement( "a" );
-    jaehrAenderLink.href        = "#";
-    jaehrAenderLink.textContent = "Edit year";
-    jaehrAenderLink.addEventListener( "click", (event) => { onJahrAendernKlick( event, id, land, jahr ); });
-    zelleJahrAendern.appendChild( jaehrAenderLink );
+    const editYearLink = document.createElement( "a" );
+    editYearLink.href = "#";
+    editYearLink.textContent = "Edit year";
+    editYearLink.addEventListener( "click", (event) => { onEditYearClick( event, id, country, year ); });
+    editYearCell.appendChild( editYearLink );
 
-    const landAendernLink       = document.createElement( "a" );
-    landAendernLink.href        = "#";
-    landAendernLink.textContent = "Edit country";
-    landAendernLink.addEventListener( "click", (event) => { onLandAendernKlick( event, id, land, jahr ); });
-    zelleLandAendern.appendChild( landAendernLink );
+    const editCountryLink = document.createElement( "a" );
+    editCountryLink.href = "#";
+    editCountryLink.textContent = "Edit country";
+    editCountryLink.addEventListener( "click", (event) => { onEditCountryClick( event, id, country, year ); });
+    editCountryCell.appendChild( editCountryLink );
 
-    tabellenZeileKnoten.appendChild( zelleJahr        );
-    tabellenZeileKnoten.appendChild( zelleLand        );
-    tabellenZeileKnoten.appendChild( zelleLoeschen    );
-    tabellenZeileKnoten.appendChild( zelleJahrAendern );
-    tabellenZeileKnoten.appendChild( zelleLandAendern );
+    tableRow.appendChild( yearCell );
+    tableRow.appendChild( countryCell );
+    tableRow.appendChild( deleteCell );
+    tableRow.appendChild( editYearCell );
+    tableRow.appendChild( editCountryCell );
 
-    tabelleBody.appendChild( tabellenZeileKnoten );
+    tableBody.appendChild( tableRow );
 }
 
 
@@ -187,26 +187,26 @@ function addTabellenZeile( id, jahr, land ) {
  *
  * @param {object} event Event object
  *
- * @param {number} id ID of the record to delete
+ * @param {number} id ID of the record to update
  *
- * @param {string} land Country, e.g. "France"
+ * @param {string} country Country, e.g. "France"
  *
- * @param {number} jahr Year of the first visit, e.g. 1986
+ * @param {number} year Year of the first visit, e.g. 1986
  */
-async function onLoeschenKlick( event, id, land, jahr ) {
+async function onDeleteClick( event, id, country, year ) {
 
     event.preventDefault();
 
-    const bestaetigt = confirm( `Are you sure you want to delete the entry for "${land}" from ${jahr}?` );
-    if ( bestaetigt === true ) {
+    const confirmed = confirm( `Are you sure you want to delete the entry for "${country}" from ${year}?` );
+    if ( confirmed === true ) {
 
         try {
 
-            await loescheDatensatz( id );
+            await deleteRecord( id );
 
-            await datenLaden();
+            await loadData();
         }
-        catch ( fehler ) {
+        catch ( error ) {
 
             console.log( `Error deleting record with ID=${id}.`, id );
             alert( "Error deleting the record." );
@@ -222,32 +222,32 @@ async function onLoeschenKlick( event, id, land, jahr ) {
  *
  * @param {number} id ID of the record to delete
  *
- * @param {string} land Country, e.g. "France"
+ * @param {string} country Country, e.g. "France"
  *
- * @param {number} jahr Year of the first visit (to be changed)
+ * @param {number} year Year of the first visit (to be changed)
  */
-async function onJahrAendernKlick( event, id, land, jahr ) {
+async function onEditYearClick( event, id, country, year ) {
 
     event.preventDefault();
 
-    const neueJahreszahlStr =
-            prompt( `Enter the new year you visited "${land}":`,
-                    jahr );
+        const newYearString =
+            prompt( `Enter the new year you visited "${country}":`,
+                year );
 
-    if ( !neueJahreszahlStr ) { return; }
+        if ( !newYearString ) { return; }
 
-    const neueJahreszahlNumber = Number( neueJahreszahlStr );
-    if ( !neueJahreszahlNumber ) {
+        const newYear = Number( newYearString );
+        if ( !newYear ) {
 
         alert( "Invalid year entered." );
         return;
     }
-    if ( neueJahreszahlNumber < JAHR_MIN ) {
+    if ( newYear < MIN_YEAR ) {
 
         alert( "Error: The entered year is too far in the past." );
         return;
     }
-    if ( neueJahreszahlNumber > jahrAktuell ) {
+    if ( newYear > currentYear ) {
 
         alert( "Error: The entered year is in the future." );
         return;
@@ -255,13 +255,13 @@ async function onJahrAendernKlick( event, id, land, jahr ) {
 
     try {
 
-        await aendereDatensatz( id, neueJahreszahlNumber, null );
+        await updateRecord( id, newYear, null );
 
-        await datenLaden();
+        await loadData();
     }
-    catch ( fehler ) {
+    catch ( error ) {
 
-        console.log( `Error changing the year for record with ID=${id}.`, fehler );
+        console.log( `Error changing the year for record with ID=${id}.`, error );
         alert( "An error occurred while updating the record." );
     }
 }
@@ -272,22 +272,22 @@ async function onJahrAendernKlick( event, id, land, jahr ) {
  *
  * @param {object} event Event object
  *
- * @param {number} id ID of the record to delete
+ * @param {number} id ID of the record to update
  *
- * @param {string} land Country, e.g. "France"
+ * @param {string} country Country, e.g. "France"
  *
- * @param {number} jahr Year of the first visit (to be changed)
+ * @param {number} year Year of the first visit (to be changed)
  */
-async function onLandAendernKlick( event, id, land, jahr ) {
+async function onEditCountryClick( event, id, country, year ) {
 
     event.preventDefault();
 
-    let neuesLand = prompt( `Enter the new country for ${jahr}:`, land );
-    if ( !neuesLand ) { return; }
+    let newCountry = prompt( `Enter the new country for ${year}:`, country );
+    if ( !newCountry ) { return; }
 
-    neuesLand = neuesLand.trim();
+    newCountry = newCountry.trim();
 
-    if ( neuesLand.length === 0 ) {
+    if ( newCountry.length === 0 ) {
 
         alert( "Error: No country entered." );
         return;
@@ -295,13 +295,13 @@ async function onLandAendernKlick( event, id, land, jahr ) {
 
     try {
 
-        await aendereDatensatz( id, null, neuesLand );
+        await updateRecord( id, null, newCountry );
 
-        await datenLaden();
+        await loadData();
     }
-    catch ( fehler ) {
+    catch ( error ) {
 
-        console.log( `Error changing the country for record with ID=${id}.`, fehler );
+        console.log( `Error changing the country for record with ID=${id}.`, error );
         alert( "An error occurred while updating the record." );
     }
 }

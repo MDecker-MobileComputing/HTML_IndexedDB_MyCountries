@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <title>All My Countries</title>
-    <meta charset="utf-8" >
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="countries-styles.css">
-    <script src="database.js"  defer></script>
-    <script src="countries.js" defer></script>
+  <meta charset="utf-8" >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="countries-styles.css">
+  <script src="database.js"  defer></script>
+  <script src="countries.js" defer></script>
 </head>
 <body>
 
@@ -19,13 +19,13 @@
   <br>
 
   <h2>Add a country</h2>
-  <form id="anmeldeFormular">
+  <form id="entryForm">
 
     <div>
-      <label for="inputJahr">Year:</label>
-      <input id="inputJahr"
+      <label for="yearInput">Year:</label>
+      <input id="yearInput"
              type="number"
-             name="jahr"
+             name="year"
              required
              min="1900"
              max="2099"
@@ -35,12 +35,12 @@
     </div><br>
 
     <div>
-      <label for="inputLand">Country:</label>
-      <input type="text" id="inputLand" required>
+      <label for="countryInput">Country:</label>
+      <input type="text" id="countryInput" required>
     </div><br>
 
-    <button id="buttonSpeichern"     type="submit" >Save</button>
-    <button id="buttonZuruecksetzen" type="reset"  >Reset</button>
+    <button id="saveButton"  type="submit">Save</button>
+    <button id="resetButton" type="reset">Reset</button>
 
   </form>
 
@@ -55,18 +55,17 @@
       <tr>
         <th>Year</th>
         <th>Country</th>
-        <th></th><!-- Delete        -->
-        <th></th><!-- Edit year     -->
-        <th></th><!-- Edit country  -->
+        <th></th><!-- Delete       -->
+        <th></th><!-- Edit year    -->
+        <th></th><!-- Edit country -->
       </tr>
     </thead>
-    <tbody id="tabelleBody">
+    <tbody id="tableBody">
     </tbody>
   </table>
   <br>
 
-  <p>Number of countries: <span id="spanAnzahlLaender"></span></p>
-
+  <p>Number of countries: <span id="countryCount"></span></p>
 
 </body>
 </html>

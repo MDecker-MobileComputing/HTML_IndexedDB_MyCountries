@@ -1,7 +1,7 @@
 "use strict";
 
-const DATENBANK_NAME        = "AlleMeineLaenderDB";
-const STORE_LISTENEINTRAEGE = "laender";
+const DATABASE_NAME = "AllMyCountriesDatabase";
+const RECORD_STORE  = "countries";
 
 
 /**
@@ -9,39 +9,67 @@ const STORE_LISTENEINTRAEGE = "laender";
  *
  * @returns {Promise<IDBDatabase>} Promise for the database connection
  */
-async function holeDatenbankVerbindung() {
+async function getDatabaseConnection() {
 
     return new Promise( (resolve, reject) => {
 
-        const idbOpenRequest = window.indexedDB.open( DATENBANK_NAME, 1 );
+        const idbOpenRequest = window.indexedDB.open( DATABASE_NAME, 2 );
 
         idbOpenRequest.onsuccess = (event) => {
 
             const db = event.target.result;
-            console.log( `Datenbank \"${DATENBANK_NAME}\" erfolgreich geöffnet.` );
+            console.log( `Database \"${DATABASE_NAME}\" opened successfully.` );
             return resolve( db );
         };
 
         idbOpenRequest.onerror = (event) => {
 
-            const fehler = event.target.error;
-            console.error( `Fehler beim Öffnen der Datenbank \"${DATENBANK_NAME}\":`, fehler );
-            return reject( fehler );
+            const error = event.target.error;
+            console.error( `Fehler beim Öffnen der Datenbank \"${DATABASE_NAME}\":`, error );
+            return reject( error );
         };
 
         idbOpenRequest.onupgradeneeded = (event) => {
 
-            console.log( `Datenbank \"${DATENBANK_NAME}\" wird erstellt/aktualisiert.` );
+            console.log( `Creating/updating database \"${DATABASE_NAME}\".` );
             const db = event.target.result;
+            let store;
 
             // Create the object store if it does not already exist
-            if ( !db.objectStoreNames.contains( STORE_LISTENEINTRAEGE ) ) {
+            if ( !db.objectStoreNames.contains( RECORD_STORE ) ) {
 
-                db.createObjectStore( STORE_LISTENEINTRAEGE, {
+                store = db.createObjectStore( RECORD_STORE, {
                     keyPath: "id",
                     autoIncrement: true
                 });
-                console.log( `Object Store \"${STORE_LISTENEINTRAEGE}\" erstellt.` );
+                console.log( `Object store \"${RECORD_STORE}\" created.` );
+            }
+            else {
+
+                store = event.target.transaction.objectStore( RECORD_STORE );
+            }
+
+            if ( event.oldVersion < 2 && event.oldVersion > 0 ) {
+
+                const cursorRequest = store.openCursor();
+                cursorRequest.onsuccess = () => {
+
+                    const cursor = cursorRequest.result;
+                    if ( !cursor ) { return; }
+
+                    const record = cursor.value;
+                    if ( "year" in record ) {
+                        record.year = record.jahr;
+                        delete record.jahr;
+                    }
+                    if ( "year" in record ) {
+                        record.country = record.land;
+                        delete record.land;
+                    }
+
+                    cursor.update( record );
+                    cursor.continue();
+                };
             }
         };
     });
@@ -57,24 +85,24 @@ async function holeDatenbankVerbindung() {
  *
  * @returns {Promise<number>} Promise containing the ID of the newly created record
  */
-async function neuerDatensatz( jahr, land ) {
+async function addRecord( year, country ) {
 
-    const datenbank = await holeDatenbankVerbindung();
+    const database = await getDatabaseConnection();
 
     return new Promise( ( resolve, reject ) => {
 
-        const tx    = datenbank.transaction( STORE_LISTENEINTRAEGE, "readwrite" );
-        const store = tx.objectStore( STORE_LISTENEINTRAEGE );
+                const transaction = database.transaction( RECORD_STORE, "readwrite" );
+                const store = transaction.objectStore( RECORD_STORE );
 
-        const landObjekt = {
-                             jahr: jahr,
-                             land: land
+                const countryRecord = {
+                                                         year: year,
+                                                         country: country
                            };
 
-        const neuRequest = store.add( landObjekt );
+                const addRequest = store.add( countryRecord );
 
-        neuRequest.onsuccess = () => resolve( neuRequest.result );
-        neuRequest.onerror   = () => reject(  neuRequest.error  );
+                addRequest.onsuccess = () => resolve( addRequest.result );
+                addRequest.onerror   = () => reject(  addRequest.error  );
     });
 }
 
@@ -85,27 +113,27 @@ async function neuerDatensatz( jahr, land ) {
  * @returns {Promise<Array>} Promise containing an array of all country objects,
  *                           sorted by year in ascending order
  */
-async function getAlleDatensaetze() {
+async function getAllRecords() {
 
-    const datenbank = await holeDatenbankVerbindung();
+    const database = await getDatabaseConnection();
 
     return new Promise( ( resolve, reject ) => {
 
-        const tx    = datenbank.transaction( STORE_LISTENEINTRAEGE, "readonly" );
-        const store = tx.objectStore( STORE_LISTENEINTRAEGE );
+        const transaction = database.transaction( RECORD_STORE, "readonly" );
+        const store = transaction.objectStore( RECORD_STORE );
 
-        const leseRequest = store.getAll();
+        const getAllRequest = store.getAll();
 
-        leseRequest.onsuccess = function() {
+        getAllRequest.onsuccess = function() {
 
-            let laenderArray = leseRequest.result;
-            laenderArray = laenderArray.sort( (a, b) => {
-                return a.jahr - b.jahr;
+            let records = getAllRequest.result;
+            records = records.sort( (a, b) => {
+                return a.year - b.year;
             });
-            resolve( laenderArray );
+            resolve( records );
 
         };
-        leseRequest.onerror = function() { reject(  request.error ); };
+        getAllRequest.onerror = function() { reject(  request.error ); };
     });
 }
 
@@ -117,19 +145,19 @@ async function getAlleDatensaetze() {
  *
  * @returns {Promise<void>} Promise fulfilled when the deletion succeeds
  */
-async function loescheDatensatz( id ) {
+async function deleteRecord( id ) {
 
-    const datenbank = await holeDatenbankVerbindung();
+    const database = await getDatabaseConnection();
 
     return new Promise( (resolve, reject) => {
 
-        const tx    = datenbank.transaction( STORE_LISTENEINTRAEGE, "readwrite" );
-        const store = tx.objectStore( STORE_LISTENEINTRAEGE );
+        const transaction = database.transaction( RECORD_STORE, "readwrite" );
+        const store = transaction.objectStore( RECORD_STORE );
 
-        const loeschRequest = store.delete( id );
+        const deleteRequest = store.delete( id );
 
-        loeschRequest.onsuccess = function() { resolve();               };
-        loeschRequest.onerror   = function() { reject( request.error ); };
+        deleteRequest.onsuccess = function() { resolve();               };
+        deleteRequest.onerror   = function() { reject( request.error ); };
     });
 }
 
@@ -145,39 +173,39 @@ async function loescheDatensatz( id ) {
  *
  * @returns {Promise<number>} Promise fulfilled with the ID of the updated record
  */
-async function aendereDatensatz( id, neuJahreszahl, neuLand ) {
+async function updateRecord( id, newYear, newCountry ) {
 
-    if ( !neuJahreszahl && !neuLand ) {
+    if ( !newYear && !newCountry ) {
 
         reject( new Error( "Weder neues Jahr noch neues Land übergeben." ));
     }
 
-    const datenbank = await holeDatenbankVerbindung();
+    const database = await getDatabaseConnection();
 
     return new Promise( (resolve, reject) => {
 
-        const tx    = datenbank.transaction( STORE_LISTENEINTRAEGE, "readwrite" );
-        const store = tx.objectStore( STORE_LISTENEINTRAEGE );
+        const transaction = database.transaction( RECORD_STORE, "readwrite" );
+        const store = transaction.objectStore( RECORD_STORE );
 
-        const leseRequest = store.get( id );
+        const getRequest = store.get( id );
 
-        leseRequest.onerror = function() { reject( leseRequest.error ); }
+        getRequest.onerror = function() { reject( getRequest.error ); }
 
-        leseRequest.onsuccess = function() {
+        getRequest.onsuccess = function() {
 
-            const datensatz = leseRequest.result;
-            if ( !datensatz ) {
+            const record = getRequest.result;
+            if ( !record ) {
 
                 reject( new Error( `Datensatz mit ID=${id} nicht gefunden.` ) );
                 return;
             }
 
-            if ( neuJahreszahl ) { datensatz.jahr = neuJahreszahl };
-            if ( neuLand       ) { datensatz.land = neuLand       };
+            if ( newYear ) { record.year = newYear };
+            if ( newCountry ) { record.country = newCountry };
 
-            const schreibRequest = store.put( datensatz );
-            schreibRequest.onsuccess = function() { resolve( schreibRequest.result ); }
-            schreibRequest.onerror   = function() { reject( schreibRequest.error   ); }
+            const putRequest = store.put( record );
+            putRequest.onsuccess = function() { resolve( putRequest.result ); }
+            putRequest.onerror   = function() { reject( putRequest.error   ); }
         }
     });
 }
