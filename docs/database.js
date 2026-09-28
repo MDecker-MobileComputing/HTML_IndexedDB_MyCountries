@@ -5,9 +5,9 @@ const STORE_LISTENEINTRAEGE = "laender";
 
 
 /**
- * Verbindungsobjekt der Datenbank holen (Datenbank wird ggf. erstellt).
+ * Get the database connection (create the database if necessary).
  *
- * @returns {Promise<IDBDatabase>} Promise auf Verbindungsobjekt der Datenbank
+ * @returns {Promise<IDBDatabase>} Promise for the database connection
  */
 async function holeDatenbankVerbindung() {
 
@@ -34,7 +34,7 @@ async function holeDatenbankVerbindung() {
             console.log( `Datenbank \"${DATENBANK_NAME}\" wird erstellt/aktualisiert.` );
             const db = event.target.result;
 
-            // Object Store erstellen (falls noch nicht vorhanden)
+            // Create the object store if it does not already exist
             if ( !db.objectStoreNames.contains( STORE_LISTENEINTRAEGE ) ) {
 
                 db.createObjectStore( STORE_LISTENEINTRAEGE, {
@@ -49,13 +49,13 @@ async function holeDatenbankVerbindung() {
 
 
 /**
- * Neues Land+Jahr in Datenbank speichern.
+ * Save a new country and year in the database.
  *
- * @param {number} jahr Jahreszahl (vierstellig, muss validiert sein)
+ * @param {number} jahr Year (four digits; must already be validated)
  *
- * @param {string} land Land (muss validiert sein)
+ * @param {string} land Country (must already be validated)
  *
- * @returns {Promise<number>} Promise mit ID der neu erstellten Lehrveranstaltung
+ * @returns {Promise<number>} Promise containing the ID of the newly created record
  */
 async function neuerDatensatz( jahr, land ) {
 
@@ -80,10 +80,10 @@ async function neuerDatensatz( jahr, land ) {
 
 
 /**
- * Alle gespeicherten Datensätze (Länder+Jahr) von Datenbank holen.
+ * Get all saved records (countries and years) from the database.
  *
- * @returns {Promise<Array>} Promise mit Array aller Länderobjekt
- *                           aufsteigend nach Jahr sortiert
+ * @returns {Promise<Array>} Promise containing an array of all country objects,
+ *                           sorted by year in ascending order
  */
 async function getAlleDatensaetze() {
 
@@ -111,11 +111,11 @@ async function getAlleDatensaetze() {
 
 
 /**
- * Löscht einen Datensatz in Datenbank.
+ * Delete a record from the database.
  *
- * @param {number} id  ID von Datensatz, der zu Löschen ist
+ * @param {number} id ID of the record to delete
  *
- * @returns {Promise<void>} Promise, die resolved wenn der Löschvorgang erfolgreich war
+ * @returns {Promise<void>} Promise fulfilled when the deletion succeeds
  */
 async function loescheDatensatz( id ) {
 
@@ -135,15 +135,15 @@ async function loescheDatensatz( id ) {
 
 
 /**
- * Daten ändern; entweder `neuJahreszahl` oder `neuLand` muss gesetzt sein.
+ * Update a record; either `neuJahreszahl` or `neuLand` must be provided.
  *
- * @param {number} id ID von zu änderndem Datensatz
+ * @param {number} id ID of the record to update
  *
- * @param {number} neuJahreszahl Neue Jahreszahl (Optional); muss schon validiert sein
+ * @param {number} neuJahreszahl New year (optional; must already be validated)
  *
- * @param {string} neuLand Neues Land (Optional); muss schon validiert sein
+ * @param {string} neuLand New country (optional; must already be validated)
  *
- * @returns {Promise<number>} Promise, die mit der ID des aktualisierten Eintrags resolved
+ * @returns {Promise<number>} Promise fulfilled with the ID of the updated record
  */
 async function aendereDatensatz( id, neuJahreszahl, neuLand ) {
 

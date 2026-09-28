@@ -1,6 +1,6 @@
 "use strict";
 
-// Referenzen auf DOM-Elemente
+// References to DOM elements
 let inputJahr         = null;
 let inputLand         = null;
 let divTabelle        = null;
@@ -13,7 +13,7 @@ const JAHR_MIN = 1900;
 
 
 /**
- * Event-Handler, der aufgerufen wird, wenn die Webseite geladen wurde.
+ * Event handler called when the webpage has loaded.
  */
 window.addEventListener( "load", async function () {
 
@@ -24,7 +24,7 @@ window.addEventListener( "load", async function () {
 
     if ( !inputJahr || !inputLand || !tabelleBody ) {
 
-        this.alert( "Interner Fehler: Mindestens eines der HTML-Elemente wurde nicht gefunden." );
+        this.alert( "Internal error: At least one HTML element could not be found." );
         return;
     }
 
@@ -41,11 +41,11 @@ window.addEventListener( "load", async function () {
 
 
 /**
- * Daten von Datenbank laden und in Tabelle darstellen.
+ * Load data from the database and display it in the table.
  */
 async function datenLaden() {
 
-    // Tabula Rasa
+    // Clear the table
     tabelleBody.innerHTML         = "";
     spanAnzahlLaender.textContent = "0";
 
@@ -65,16 +65,16 @@ async function datenLaden() {
     }
     catch ( fehler ) {
 
-        console.error( "Fehler beim Laden vom Datenbank:", fehler );
-        alert( "Fehler beim Laden vom Datenbank." );
+        console.error( "Error loading the database:", fehler );
+        alert( "Error loading the database." );
     }
 }
 
 
 /**
- * Event-Handler für den Button "Speichern".
+ * Event handler for the "Save" button.
  *
- * @param {object} event Event-Objekt
+ * @param {object} event Event object
  */
 async function onButtonSpeichern( event ) {
 
@@ -83,25 +83,25 @@ async function onButtonSpeichern( event ) {
     const jahrString = inputJahr.value.trim();
     if ( !jahrString ) {
 
-        alert( "Keine Jahreszahl eingegeben." );
+        alert( "No year entered." );
         return;
     }
     let jahrZahl = Number( jahrString );
     if ( jahrZahl < JAHR_MIN ) {
 
-         alert( "Jahreszahl liegt zu weit in der Vergangenheit." );
+         alert( "The year is too far in the past." );
          return;
     }
     if ( jahrZahl > jahrAktuell ) {
 
-         alert( "Jahreszahl liegt in der Zukunft." );
+         alert( "The year is in the future." );
          return;
     }
 
     const neuesLand = inputLand.value.trim();
     if ( neuesLand.length === 0 ) {
 
-        alert( "Ungültige Eingabe: Leeres Land." );
+        alert( "Invalid entry: Country cannot be empty." );
         return;
     }
 
@@ -112,16 +112,16 @@ async function onButtonSpeichern( event ) {
     }
     catch ( fehler ) {
 
-        console.error( "Fehler beim Speichern von Datensatz:", fehler );
-        alert( "Fehler beim Speichern von Datensatz." );
+        console.error( "Error saving record:", fehler );
+        alert( "Error saving the record." );
     }
 }
 
 
 /**
- * Event-Handler für den Button "Zurücksetzen".
+ * Event handler for the "Reset" button.
  *
- * @param {object} event Event-Objekt
+ * @param {object} event Event object
  */
 function onButtonZuruecksetzen( event ) {
 
@@ -133,13 +133,13 @@ function onButtonZuruecksetzen( event ) {
 
 
 /**
- * Zeile in Tabelle einfügen.
+ * Insert a row into the table.
  *
- * @param {number} id ID von Datensatz
+ * @param {number} id Record ID
  *
- * @param {number} jahr Jahreszahl Erstbesuch (muss schon validiert sein)
+ * @param {number} jahr Year of the first visit (must already be validated)
  *
- * @param {string} land Land, z.B. "Frankreich" (muss schon validiert sein)
+ * @param {string} land Country, e.g. "France" (must already be validated)
  */
 function addTabellenZeile( id, jahr, land ) {
 
@@ -156,19 +156,19 @@ function addTabellenZeile( id, jahr, land ) {
 
     const loeschLink       = document.createElement( "a" );
     loeschLink.href        = "#";
-    loeschLink.textContent = "Löschen";
+    loeschLink.textContent = "Delete";
     loeschLink.addEventListener( "click", (event) => { onLoeschenKlick( event, id, land, jahr ); });
     zelleLoeschen.appendChild( loeschLink );
 
     const jaehrAenderLink       = document.createElement( "a" );
     jaehrAenderLink.href        = "#";
-    jaehrAenderLink.textContent = "Jahr ändern";
+    jaehrAenderLink.textContent = "Edit year";
     jaehrAenderLink.addEventListener( "click", (event) => { onJahrAendernKlick( event, id, land, jahr ); });
     zelleJahrAendern.appendChild( jaehrAenderLink );
 
     const landAendernLink       = document.createElement( "a" );
     landAendernLink.href        = "#";
-    landAendernLink.textContent = "Land ändern";
+    landAendernLink.textContent = "Edit country";
     landAendernLink.addEventListener( "click", (event) => { onLandAendernKlick( event, id, land, jahr ); });
     zelleLandAendern.appendChild( landAendernLink );
 
@@ -183,21 +183,21 @@ function addTabellenZeile( id, jahr, land ) {
 
 
 /**
- * Event-Handler für Löschen eines Datensatzes.
+ * Event handler for deleting a record.
  *
- * @param {object} event Event-Objekt
+ * @param {object} event Event object
  *
- * @param {number} ID von zu löschendem Datensatz
+ * @param {number} id ID of the record to delete
  *
- * @param {string} land Land, z.B. "Frankreich"
+ * @param {string} land Country, e.g. "France"
  *
- * @param {number} jahr Jahreszahl Erstbesuch, z.B. 1986
+ * @param {number} jahr Year of the first visit, e.g. 1986
  */
 async function onLoeschenKlick( event, id, land, jahr ) {
 
     event.preventDefault();
 
-    const bestaetigt = confirm( `Soll der Eintrag für "${land}" im Jahr ${jahr} wirklich gelöscht werden?` );
+    const bestaetigt = confirm( `Are you sure you want to delete the entry for "${land}" from ${jahr}?` );
     if ( bestaetigt === true ) {
 
         try {
@@ -208,30 +208,30 @@ async function onLoeschenKlick( event, id, land, jahr ) {
         }
         catch ( fehler ) {
 
-            console.log( `Fehler beim Löschen von Datensatz mit ID=${id}.`, id );
-            alert( "Fehler bei Löschen von Datensatz." );
+            console.log( `Error deleting record with ID=${id}.`, id );
+            alert( "Error deleting the record." );
         }
     }
 }
 
 
 /**
- * Event-Handler für Ändern Jahreszahl eines Datensatzes.
+ * Event handler for changing a record's year.
  *
- * @param {object} event Event-Objekt
+ * @param {object} event Event object
  *
- * @param {number} id ID von zu löschendem Datensatz
+ * @param {number} id ID of the record to delete
  *
- * @param {string} land Land, z.B. "Frankreich"
+ * @param {string} land Country, e.g. "France"
  *
- * @param {number} jahr Jahreszahl Erstbesuch (soll geändert werden)
+ * @param {number} jahr Year of the first visit (to be changed)
  */
 async function onJahrAendernKlick( event, id, land, jahr ) {
 
     event.preventDefault();
 
     const neueJahreszahlStr =
-            prompt( `Bitte neue Jahreszahl für Besuch von "${land}" eingeben:`,
+            prompt( `Enter the new year you visited "${land}":`,
                     jahr );
 
     if ( !neueJahreszahlStr ) { return; }
@@ -239,17 +239,17 @@ async function onJahrAendernKlick( event, id, land, jahr ) {
     const neueJahreszahlNumber = Number( neueJahreszahlStr );
     if ( !neueJahreszahlNumber ) {
 
-        alert( "Ungültige Jahreszahl eingegeben." );
+        alert( "Invalid year entered." );
         return;
     }
     if ( neueJahreszahlNumber < JAHR_MIN ) {
 
-        alert( "Fehler: Eingegebene Jahreszahl liegt zu weit in der Vergangenheit." );
+        alert( "Error: The entered year is too far in the past." );
         return;
     }
     if ( neueJahreszahlNumber > jahrAktuell ) {
 
-        alert( "Fehler: Eingegebene Jahreszahl liegt in der Zukunft." );
+        alert( "Error: The entered year is in the future." );
         return;
     }
 
@@ -261,35 +261,35 @@ async function onJahrAendernKlick( event, id, land, jahr ) {
     }
     catch ( fehler ) {
 
-        console.log( `Fehler beim Ändern Jahreszahl von Datensatz mit ID=${id}.`, fehler );
-        alert( "Fehler bei Änderung von Datensatz aufgetreten." );
+        console.log( `Error changing the year for record with ID=${id}.`, fehler );
+        alert( "An error occurred while updating the record." );
     }
 }
 
 
 /**
- * Event-Handler für Ändern Land eines Datensatzes.
+ * Event handler for changing a record's country.
  *
- * @param {object} event Event-Objekt
+ * @param {object} event Event object
  *
- * @param {number} id ID von zu löschendem Datensatz
+ * @param {number} id ID of the record to delete
  *
- * @param {string} land  Land, z.B. "Frankreich"
+ * @param {string} land Country, e.g. "France"
  *
- * @param {number} jahr  Jahreszahl Erstbesuch (soll geändert werden)
+ * @param {number} jahr Year of the first visit (to be changed)
  */
 async function onLandAendernKlick( event, id, land, jahr ) {
 
     event.preventDefault();
 
-    let neuesLand = prompt( `Bitte neues Land für Jahr ${jahr} eingeben: `, land );
+    let neuesLand = prompt( `Enter the new country for ${jahr}:`, land );
     if ( !neuesLand ) { return; }
 
     neuesLand = neuesLand.trim();
 
     if ( neuesLand.length === 0 ) {
 
-        alert( "Fehler: Kein Land eingegeben." );
+        alert( "Error: No country entered." );
         return;
     }
 
@@ -301,7 +301,7 @@ async function onLandAendernKlick( event, id, land, jahr ) {
     }
     catch ( fehler ) {
 
-        console.log( `Fehler beim Ändern Land von Datensatz mit ID=${id}.`, fehler );
-        alert( "Fehler bei Änderung von Datensatz aufgetreten." );
+        console.log( `Error changing the country for record with ID=${id}.`, fehler );
+        alert( "An error occurred while updating the record." );
     }
 }
