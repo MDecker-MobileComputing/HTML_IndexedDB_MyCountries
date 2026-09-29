@@ -13,7 +13,7 @@ async function getDatabaseConnection() {
 
     return new Promise( (resolve, reject) => {
 
-        const idbOpenRequest = window.indexedDB.open( DATABASE_NAME, 2 );
+        const idbOpenRequest = window.indexedDB.open( DATABASE_NAME, 1 );
 
         idbOpenRequest.onsuccess = (event) => {
 
@@ -25,7 +25,8 @@ async function getDatabaseConnection() {
         idbOpenRequest.onerror = (event) => {
 
             const error = event.target.error;
-            console.error( `Error when opening the database \"${DATABASE_NAME}\":`, error );
+            console.error(
+                `Error when opening the database \"${DATABASE_NAME}\":`, error );
             return reject( error );
         };
 
@@ -43,8 +44,8 @@ async function getDatabaseConnection() {
                     autoIncrement: true
                 });
                 console.log( `Object store \"${RECORD_STORE}\" created.` );
-            }
-            else {
+
+            } else {
 
                 store = event.target.transaction.objectStore( RECORD_STORE );
             }
@@ -59,10 +60,12 @@ async function getDatabaseConnection() {
 
                     const record = cursor.value;
                     if ( "year" in record ) {
+
                         record.year = record.jahr;
                         delete record.jahr;
                     }
                     if ( "year" in record ) {
+
                         record.country = record.land;
                         delete record.land;
                     }
@@ -79,11 +82,12 @@ async function getDatabaseConnection() {
 /**
  * Save a new country and year in the database.
  *
- * @param {number} jahr Year (four digits; must already be validated)
+ * @param {number} year Year (four digits; must already be validated)
  *
- * @param {string} land Country (must already be validated)
+ * @param {string} country Country (must already be validated)
  *
- * @returns {Promise<number>} Promise containing the ID of the newly created record
+ * @returns {Promise<number>} Promise containing the ID of the newly
+ *                            created record
  */
 async function addRecord( year, country ) {
 
@@ -92,12 +96,12 @@ async function addRecord( year, country ) {
     return new Promise( ( resolve, reject ) => {
 
                 const transaction = database.transaction( RECORD_STORE, "readwrite" );
-                const store = transaction.objectStore( RECORD_STORE );
+                const store       = transaction.objectStore( RECORD_STORE );
 
                 const countryRecord = {
-                                                         year: year,
-                                                         country: country
-                           };
+                                        year   : year,
+                                        country: country
+                                      };
 
                 const addRequest = store.add( countryRecord );
 
@@ -120,7 +124,7 @@ async function getAllRecords() {
     return new Promise( ( resolve, reject ) => {
 
         const transaction = database.transaction( RECORD_STORE, "readonly" );
-        const store = transaction.objectStore( RECORD_STORE );
+        const store       = transaction.objectStore( RECORD_STORE );
 
         const getAllRequest = store.getAll();
 
@@ -152,7 +156,7 @@ async function deleteRecord( id ) {
     return new Promise( (resolve, reject) => {
 
         const transaction = database.transaction( RECORD_STORE, "readwrite" );
-        const store = transaction.objectStore( RECORD_STORE );
+        const store       = transaction.objectStore( RECORD_STORE );
 
         const deleteRequest = store.delete( id );
 
@@ -163,13 +167,13 @@ async function deleteRecord( id ) {
 
 
 /**
- * Update a record; either `neuJahreszahl` or `neuLand` must be provided.
+ * Update a record; either `newYear` or `newCountry` must be provided.
  *
  * @param {number} id ID of the record to update
  *
- * @param {number} neuJahreszahl New year (optional; must already be validated)
+ * @param {number} newYear New year (optional; must already be validated)
  *
- * @param {string} neuLand New country (optional; must already be validated)
+ * @param {string} newCountry New country (optional; must already be validated)
  *
  * @returns {Promise<number>} Promise fulfilled with the ID of the updated record
  */
@@ -177,7 +181,7 @@ async function updateRecord( id, newYear, newCountry ) {
 
     if ( !newYear && !newCountry ) {
 
-        reject( new Error( "Weder neues Jahr noch neues Land übergeben." ));
+        reject( new Error( "Neither year or country was supplied." ));
     }
 
     const database = await getDatabaseConnection();
@@ -185,7 +189,7 @@ async function updateRecord( id, newYear, newCountry ) {
     return new Promise( (resolve, reject) => {
 
         const transaction = database.transaction( RECORD_STORE, "readwrite" );
-        const store = transaction.objectStore( RECORD_STORE );
+        const store       = transaction.objectStore( RECORD_STORE );
 
         const getRequest = store.get( id );
 
@@ -196,16 +200,16 @@ async function updateRecord( id, newYear, newCountry ) {
             const record = getRequest.result;
             if ( !record ) {
 
-                reject( new Error( `Datensatz mit ID=${id} nicht gefunden.` ) );
+                reject( new Error( `Record with ID=${id} not found.` ) );
                 return;
             }
 
-            if ( newYear ) { record.year = newYear };
+            if ( newYear    ) { record.year    = newYear    };
             if ( newCountry ) { record.country = newCountry };
 
             const putRequest = store.put( record );
             putRequest.onsuccess = function() { resolve( putRequest.result ); }
-            putRequest.onerror   = function() { reject( putRequest.error   ); }
+            putRequest.onerror   = function() { reject(  putRequest.error  ); }
         }
     });
 }
