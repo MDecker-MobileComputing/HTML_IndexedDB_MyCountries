@@ -25,7 +25,7 @@ async function getDatabaseConnection() {
         idbOpenRequest.onerror = (event) => {
 
             const error = event.target.error;
-            console.error( `Fehler beim Öffnen der Datenbank \"${DATABASE_NAME}\":`, error );
+            console.error( `Error when opening the database \"${DATABASE_NAME}\":`, error );
             return reject( error );
         };
 
