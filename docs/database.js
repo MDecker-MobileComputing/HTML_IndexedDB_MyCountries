@@ -95,7 +95,7 @@ async function addRecord( year, country ) {
 
     return new Promise( ( resolve, reject ) => {
 
-                const transaction = database.transaction( RECORD_STORE, "readwrite" );
+                const transaction = database.transaction(    RECORD_STORE, "readwrite" );
                 const store       = transaction.objectStore( RECORD_STORE );
 
                 const countryRecord = {
@@ -123,7 +123,7 @@ async function getAllRecords() {
 
     return new Promise( ( resolve, reject ) => {
 
-        const transaction = database.transaction( RECORD_STORE, "readonly" );
+        const transaction = database.transaction(    RECORD_STORE, "readonly" );
         const store       = transaction.objectStore( RECORD_STORE );
 
         const getAllRequest = store.getAll();
