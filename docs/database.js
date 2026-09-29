@@ -155,7 +155,7 @@ async function deleteRecord( id ) {
 
     return new Promise( (resolve, reject) => {
 
-        const transaction = database.transaction( RECORD_STORE, "readwrite" );
+        const transaction = database.transaction(    RECORD_STORE, "readwrite" );
         const store       = transaction.objectStore( RECORD_STORE );
 
         const deleteRequest = store.delete( id );
